@@ -46,6 +46,10 @@ export class Employee {
     return this._id;
   }
 
+  get employeeNumber(): string | undefined {
+    return this._employeeNumber;
+  }
+
   get grade(): number | undefined {
     return this._grade;
   }
@@ -80,37 +84,5 @@ export class Employee {
     if (this._grade) {
       this._grade = this._grade + fluctuation;
     }
-  }
-
-  /**
-   * 指定した社員番号の従業員を取得する
-   * @param employeeNumber 社員番号
-   */
-  findByEmployeeNumber(employeeNumber: string): Promise<void> {
-    const employee = Employee._employees[employeeNumber];
-    if (!employee) {
-      return Promise.reject(
-        new Error(`${employeeNumber}の従業員が存在しません`)
-      );
-    }
-    this._id = employee._id;
-    this._employeeNumber = employee._employeeNumber;
-    this._employeeName = employee._employeeName;
-    this._grade = employee._grade;
-    this._employmentSystem = employee._employmentSystem;
-    this._basicSalary = employee._basicSalary;
-    this._allowance = employee._allowance;
-    this._deduction = employee._deduction;
-    return Promise.resolve();
-  }
-
-  /**
-   * 従業員を保存する
-   */
-  save(): Promise<void> {
-    if (this._employeeNumber) {
-      Employee._employees[this._employeeNumber] = this;
-    }
-    return Promise.resolve();
   }
 }

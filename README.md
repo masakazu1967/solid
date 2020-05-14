@@ -33,3 +33,78 @@
 - 経理ロールは給与計算を行う。
   1. 経理は給与計算をする従業員を指示する。
   2. システムは指定された従業員の給与計算をし、データベースに保存する。
+
+## 単一責任の原則 (SRP)
+
+モジュールを変更する理由はたった一つになるようにする
+
+Employeeクラスは人事考課とデータベース管理の責務を負っています。
+データベースの管理のメソッドが影響を受ける修正があった場合でも人事考課のメソッドも再コンパイルが必要。
+
+```typescript
+export class Employee {
+
+  /**
+   * 人事考課を行う
+   * @param fluctuation 等級の増減
+   */
+  evaluatePersonal(fluctuation: number): void {
+    if (this._grade) {
+      this._grade = this._grade + fluctuation;
+    }
+  }
+
+  /**
+   * 指定した社員番号の従業員を取得する
+   * @param employeeNumber 社員番号
+   */
+  findByEmployeeNumber(employeeNumber: string): Promise<void> {
+    ...
+    return Promise.resolve();
+  }
+
+  /**
+   * 従業員を保存する
+   */
+  save(): Promise<void> {
+    ...
+    return Promise.resolve();
+  }
+}
+```
+
+人事考課のクラスとデータベース管理のクラスを分けることで解消する。
+
+```typescript
+export class Employee {
+
+  /**
+   * 人事考課を行う
+   * @param fluctuation 等級の増減
+   */
+  evaluatePersonal(fluctuation: number): void {
+    if (this._grade) {
+      this._grade = this._grade + fluctuation;
+    }
+  }
+}
+
+export class EmployeeRepository {
+  /**
+   * 指定した社員番号の従業員を取得する
+   * @param employeeNumber 社員番号
+   */
+  findByEmployeeNumber(employeeNumber: string): Promise<Employee> {
+    ...
+    return Promise.resolve(employee);
+  }
+
+  /**
+   * 従業員を保存する
+   */
+  save(employee: Employee): Promise<void> {
+    ...
+    return Promise.resolve();
+  }
+}
+```
