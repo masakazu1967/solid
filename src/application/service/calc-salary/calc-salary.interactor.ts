@@ -1,5 +1,3 @@
-import { Employee } from "../../../domain/model/employee/employee";
-import { EmploymentSystem } from "../../../domain/model/employee/employment-system";
 import { Salary } from "../../../domain/model/salary/salary";
 import { EmployeeRepository } from "../../../domain/model/employee/employee.repository";
 import { SalaryRepository } from "../../../domain/model/salary/salary.repository";
@@ -25,24 +23,7 @@ export class CalcSalaryInteractor {
         new Error(`${employeeNumber}の従業員が存在しません`)
       );
     }
-    const salary = new Salary(employee.id, this.calcSalary(employee));
+    const salary = new Salary(employee.id, employee.calcSalary());
     return this._salaryRepository.save(salary);
-  }
-
-  /**
-   * 特定の従業員の給与を計算する
-   * @param employee 給与を計算する従業員
-   */
-  private calcSalary(employee: Employee): number {
-    let salary = 0;
-    if (employee.employmentSystem === EmploymentSystem.FulltimeEmployee) {
-      // 正社員は基本給+手当-天引
-      salary = employee.basicSalary + employee.allowance - employee.deduction;
-    }
-    if (employee.employmentSystem === EmploymentSystem.ContractEmployee) {
-      // 契約社員は基本給+手当
-      salary = employee.basicSalary + employee.allowance;
-    }
-    return salary;
   }
 }

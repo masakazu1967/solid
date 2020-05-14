@@ -77,6 +77,23 @@ export class Employee {
   }
 
   /**
+   * 給与を計算する
+   * @return 給与金額
+   */
+  calcSalary(): number {
+    let salary = 0;
+    if (this.employmentSystem === EmploymentSystem.FulltimeEmployee) {
+      // 正社員は基本給+手当-天引
+      salary = this.basicSalary + this.allowance - this.deduction;
+    }
+    if (this.employmentSystem === EmploymentSystem.ContractEmployee) {
+      // 契約社員は基本給+手当
+      salary = this.basicSalary + this.allowance;
+    }
+    return salary;
+  }
+
+  /**
    * 人事考課を行う
    * @param fluctuation 等級の増減
    */
