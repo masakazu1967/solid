@@ -112,3 +112,75 @@ export class EmployeeRepository {
 ## オープン/クローズドの原則 (OCP)
 
 拡張に対してはオープンに、修正に対してはクローズドにする
+
+Employeeの給与計算ロジック中に雇用形態ごとに計算している。
+
+```typescript
+class Employee {
+  ...
+  /**
+   * 給与を計算する
+   * @return 給与金額
+   */
+  calcSalary(): number {
+    let salary = 0;
+    if (this.employmentSystem === EmploymentSystem.FulltimeEmployee) {
+      // 正社員は基本給+手当-天引
+      salary = this.basicSalary + this.allowance - this.deduction;
+    }
+    if (this.employmentSystem === EmploymentSystem.ContractEmployee) {
+      // 契約社員は基本給+手当
+      salary = this.basicSalary + this.allowance;
+    }
+    return salary;
+  }
+}
+```
+
+パート社員も採用することになったが、既存のメソッド`calcSalary`を修正する必要がある。修正すると動作に支障が出ないか確認する必要が出てしまう。
+雇用形態ごとに従業員クラスを作成する。
+
+```typescript
+/**
+ * 従業員
+ */
+abstract class Employee {
+  abstract calcSalary(): Promise<number>;
+}
+
+/**
+ * 正社員
+ */
+class FulltimeEmployee extends Employee {
+  calcSalary(): Promise<number> {
+    // 正社員は基本給+手当-天引
+    return Promise.resolve(this.basicSalary + this.allowance - this.deduction);
+  }
+}
+
+/**
+ * 契約社員
+ */
+class ContractEmployee extends Employee {
+  calcSalary(): Promise<number> {
+    // 契約社員は基本給+手当
+    return Promise.resolve(this.basicSalary + this.allowance);
+  }
+}
+```
+
+このような作りにしていると、パート社員を採用することになった場合はParttimeEmployeeクラスを作成するだけでOK。
+
+```typescript
+/**
+ * パート社員
+ */
+class ParttimeEmployee extends Employee {
+  private _WAGE = 800;  // 時給
+  calcSalary(): Promise<number> {
+    // パート社員は時給×作業時間＋手当
+    const manhour = await this._findManhour();  // パート社員の作業時間を取得する
+    return this._WAGE * manhour + this.allowance;
+  }
+}
+```

@@ -23,7 +23,7 @@ export class CalcSalaryInteractor {
         new Error(`${employeeNumber}の従業員が存在しません`)
       );
     }
-    const salary = new Salary(employee.id, employee.calcSalary());
+    const salary = new Salary(employee.id, await employee.calcSalary());
     return this._salaryRepository.save(salary);
   }
 }

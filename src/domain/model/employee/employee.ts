@@ -1,46 +1,16 @@
 import { v4 as uuid } from "uuid";
-import { EmploymentSystem } from "./employment-system";
 
-export class Employee {
-  private _id: string | undefined; // ID
-  private _employeeNumber: string | undefined; // 社員番号
-  private _employeeName: string | undefined; // 社員名称
-  private _grade: number | undefined; // 等級
-  private _allowance = 0; // 手当
-  private _basicSalary = 0; // 基本給
-  private _deduction = 0; // 天引き
-  private _employmentSystem: EmploymentSystem =
-    EmploymentSystem.FulltimeEmployee; // 正社員
-  private static _employees: { [key: string]: Employee } = {};
-
-  /**
-   * 従業員を新規に作成する。
-   * 更新する場合はこのメソッドを利用せずインスタンスを作成してからfindByEmployeeNumberを利用すること。
-   * @param employeeNumber 社員番号
-   * @param employeeName 社員名称
-   * @param employmentSystem 雇用形態
-   * @param grade 等級
-   * @param allowance 手当
-   * @param deduction 天引き
-   */
-  static create(
-    employeeNumber: string,
-    employeeName: string,
-    employmentSystem: EmploymentSystem,
-    grade: number,
-    allowance: number,
-    deduction: number
-  ): Employee {
-    const employee = new Employee();
-    employee._id = uuid();
-    employee._employeeNumber = employeeNumber;
-    employee._employeeName = employeeName;
-    employee._employmentSystem = employmentSystem;
-    employee._grade = grade;
-    employee._allowance = allowance;
-    employee._deduction = deduction;
-    return employee;
-  }
+/**
+ * 従業員の抽象クラス
+ */
+export abstract class Employee {
+  protected _id: string | undefined; // ID
+  protected _employeeNumber: string | undefined; // 社員番号
+  protected _employeeName: string | undefined; // 社員名称
+  protected _grade: number | undefined; // 等級
+  protected _allowance = 0; // 手当
+  protected _basicSalary = 0; // 基本給
+  protected _deduction = 0; // 天引き
 
   get id(): string | undefined {
     return this._id;
@@ -56,6 +26,7 @@ export class Employee {
 
   /**
    * 基本給
+   * @return 基本給を返す。
    */
   get basicSalary(): number {
     if (!this._grade) {
@@ -72,26 +43,18 @@ export class Employee {
     return this._deduction;
   }
 
-  get employmentSystem(): EmploymentSystem {
-    return this._employmentSystem;
+  /**
+   * IDを生成する。
+   */
+  protected genId(): void {
+    this._id = uuid();
   }
 
   /**
    * 給与を計算する
    * @return 給与金額
    */
-  calcSalary(): number {
-    let salary = 0;
-    if (this.employmentSystem === EmploymentSystem.FulltimeEmployee) {
-      // 正社員は基本給+手当-天引
-      salary = this.basicSalary + this.allowance - this.deduction;
-    }
-    if (this.employmentSystem === EmploymentSystem.ContractEmployee) {
-      // 契約社員は基本給+手当
-      salary = this.basicSalary + this.allowance;
-    }
-    return salary;
-  }
+  abstract calcSalary(): Promise<number>;
 
   /**
    * 人事考課を行う
