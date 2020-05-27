@@ -260,3 +260,39 @@ export class TaxPrice extends Price {
     Expected: 5
     Received: 5.5
 ```
+
+正しいis-a関係が成り立たない場合は、他の方法を模索する。
+
+- 共通している部分を抽象クラスとしてis-a関係を成立させる。
+- is-a関係を解消し、has-a関係であるコンポジション（委譲）にする。
+
+委譲を選んだ場合の対応は以下の通りである。
+
+```typescript
+export class TaxPrice {
+  private _price: Price;
+  constructor(price: number, number: number, private _rate: number) {
+    this._price = new Price(price, number);
+  }
+
+  /**
+   * 価格クラスの個数アクセッサに委譲する
+   */
+  get number(): number {
+    return this._price.number;
+  }
+
+  /**
+   * 消費税を付与した合計金額
+   */
+  getTaxIncludedTotalPrice(): number {
+    return this._price.getTotalPrice() * this._rate;
+  }
+}
+```
+
+テストは正常に終了する。
+
+```
+ PASS  src/domain/model/price/tax-price.spec.ts
+```
