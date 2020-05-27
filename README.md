@@ -184,3 +184,79 @@ class ParttimeEmployee extends Employee {
   }
 }
 ```
+
+## リスコフの置換原則 (LSP)
+
+S が T の派生型であれば、プログラム内で T 型のオブジェクトが使われている箇所は全て S 型のオブジェクトで置換可能
+Tは仕様書で、Sはその実装と読み替えるならば、基本型で決められた約束を派生型で破ってはいけないということ。
+
+この原則に違反することは、OCPの違反にもつながってしまう。
+
+```typescript
+/**
+ * 金額
+ */
+export class Price {
+  constructor(protected _price: number, protected _number: number) {
+  }
+
+  get price(): number {
+    return this._price;
+  }
+
+  /**
+   * 合計金額と単価から個数を割り出す
+   */
+  get number(): number {
+    return this.getTotalPrice() / this.price;
+  }
+
+  /**
+   * 合計金額を取得する
+   */
+  getTotalPrice(): number {
+    return this._price * this._number;
+  }
+}
+```
+
+価格クラスに合計金額と単価から個数を割り出す機能がある場合、以下のテストは意図したとおりに動作する。
+
+```typescript
+  const price = new Price(1000, 5);
+  expect(price.number).toBe(5);
+```
+
+しかし、税込価格クラスで合計金額を取得する機能を変更した場合
+
+```typescript
+/**
+ * 税込価格
+ */
+export class TaxPrice extends Price {
+  constructor(price: number, number: number, private _rate: number) {
+    super(price, number);
+  }
+
+  /**
+   * 合計金額を取得する
+   */
+  getTotalPrice(): number {
+    return this.price * this._number * this._rate;
+  }
+}
+```
+
+以下のクラスは意図したとおりには動作しない。
+
+```typescript
+  const price = new TaxPrice(1000, 5, 1.1);
+  expect(price.number).toBe(5);
+```
+
+```
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 5
+    Received: 5.5
+```
