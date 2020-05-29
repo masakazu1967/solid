@@ -1,13 +1,13 @@
 import { Salary } from "../../../domain/model/salary/salary";
-import { EmployeeRepository } from "../../../domain/model/employee/employee.repository";
 import { SalaryRepository } from "../../../domain/model/salary/salary.repository";
+import { AccountingEmployeeRepository } from "../../../domain/model/employee/accounting-employee.repository";
 
 /**
  * 特定の従業員の給与を計算して保存する
  */
 export class CalcSalaryInteractor {
   constructor(
-    private _employeeRepository: EmployeeRepository,
+    private _employeeRepository: AccountingEmployeeRepository,
     private _salaryRepository: SalaryRepository
   ) {}
   /**

@@ -1,10 +1,10 @@
-import { EmployeeRepository } from "../../../domain/model/employee/employee.repository";
+import { HumanResourceEmployeeRepository } from "../../../domain/model/employee/human-resource-employee.repository";
 
 /**
  * 人事考課ユースケース
  */
 export class EvaluatePersonInteractor {
-  constructor(private _employeeRepository: EmployeeRepository) {}
+  constructor(private _employeeRepository: HumanResourceEmployeeRepository) {}
   /**
    * 特定の従業員の人事考課を行う
    * @param employeeNumber 人事考課をする従業員の社員番号

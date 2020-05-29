@@ -1,14 +1,14 @@
 import { EmploymentSystem } from "./employment-system";
-import { Employee } from "./employee";
 import { FulltimeEmployee } from "./fulltime-employee";
 import { ContractEmployee } from "./contract-employee";
 import { ManhourRepository } from "../manhour/manhour.repository";
 import { ParttimeEmployee } from "./parttime-employee";
+import { AbstractAccountingEmployee } from "./abstract-accounting-employee";
 
 /**
  * 社員ファクトリ
  */
-export class EmployeeFactory {
+export class AccountingEmployeeFactory {
   constructor(private _manhourRepository: ManhourRepository) {}
 
   /**
@@ -28,8 +28,8 @@ export class EmployeeFactory {
     grade: number,
     allowance: number,
     deduction: number
-  ): Employee {
-    let employee: Employee;
+  ): AbstractAccountingEmployee {
+    let employee: AbstractAccountingEmployee;
     switch (employmentSystem) {
       case EmploymentSystem.FulltimeEmployee:
         employee = FulltimeEmployee.create(

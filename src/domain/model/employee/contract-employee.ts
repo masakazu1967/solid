@@ -1,9 +1,11 @@
-import { Employee } from "./employee";
+import { AbstractHumanResourceEmployee } from "./abstract-human-resource-employee";
+import { AccountingEmployee } from "./accounting-employee";
 
 /**
  * 契約社員
  */
-export class ContractEmployee extends Employee {
+export class ContractEmployee extends AbstractHumanResourceEmployee
+  implements AccountingEmployee {
   /**
    * 契約社員オブジェクトを作成する。
    * @param employeeNumber 社員番号

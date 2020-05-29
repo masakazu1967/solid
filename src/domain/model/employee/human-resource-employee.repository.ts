@@ -1,17 +1,19 @@
-import { Employee } from "./employee";
+import { AbstractHumanResourceEmployee } from "./abstract-human-resource-employee";
 
 /**
  * 従業員リポジトリ
  */
-export class EmployeeRepository {
-  private _employees: { [key: string]: Employee } = {};
+export class HumanResourceEmployeeRepository {
+  private _employees: { [key: string]: AbstractHumanResourceEmployee } = {};
 
   /**
    * 指定した社員番号の従業員を取得する
    * @param employeeNumber 取得する従業員の社員番号
    * @return 指定した社員番号の従業員
    */
-  findByEmployeeNumber(employeeNumber: string): Promise<Employee> {
+  findByEmployeeNumber(
+    employeeNumber: string
+  ): Promise<AbstractHumanResourceEmployee> {
     const employee = this._employees[employeeNumber];
     if (!employee) {
       return Promise.reject(
@@ -25,7 +27,7 @@ export class EmployeeRepository {
    * 従業員を保存する
    * @param employee 保存する従業員
    */
-  save(employee: Employee): Promise<void> {
+  save(employee: AbstractHumanResourceEmployee): Promise<void> {
     if (!employee.employeeNumber) {
       return Promise.reject(new Error("社員番号が設定されていません"));
     }

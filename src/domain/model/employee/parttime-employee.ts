@@ -1,10 +1,11 @@
 import { Employee } from "./employee";
 import { ManhourRepository } from "../manhour/manhour.repository";
+import { AccountingEmployee } from "./accounting-employee";
 
 /**
  * パート社員
  */
-export class ParttimeEmployee extends Employee {
+export class ParttimeEmployee extends Employee implements AccountingEmployee {
   private _WAGE = 800; // 時給
   constructor(private _manhourRepository: ManhourRepository) {
     super();

@@ -1,14 +1,14 @@
 import { CalcSalaryInteractor } from "./calc-salary.interactor";
 import { EmploymentSystem } from "../../../domain/model/employee/employment-system";
-import { EmployeeRepository } from "../../../domain/model/employee/employee.repository";
 import { SalaryRepository } from "../../../domain/model/salary/salary.repository";
-import { EmployeeFactory } from "../../../domain/model/employee/employee.factory";
 import { ManhourRepository } from "../../../domain/model/manhour/manhour.repository";
 import { Manhour } from "../../../domain/model/manhour/manhour";
+import { AccountingEmployeeRepository } from "../../../domain/model/employee/accounting-employee.repository";
+import { AccountingEmployeeFactory } from "../../../domain/model/employee/accounting-employee.factory";
 
 describe("CalcSalaryInteractor", () => {
   let interactor: CalcSalaryInteractor;
-  const employeeRepository = new EmployeeRepository();
+  const employeeRepository = new AccountingEmployeeRepository();
   const salaryRepository = new SalaryRepository();
   const manhourRepository = new ManhourRepository();
   const fulltimeEmployeeNumber = "00000001";
@@ -47,7 +47,7 @@ describe("CalcSalaryInteractor", () => {
     await manhourRepository.save(
       new Manhour(parttimeEmployeeNumber, parttimeManhour)
     );
-    const employeeFactory = new EmployeeFactory(manhourRepository);
+    const employeeFactory = new AccountingEmployeeFactory(manhourRepository);
     await Promise.all(
       employeeProps.map((employeeProp) => {
         const employee = employeeFactory.create(

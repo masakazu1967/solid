@@ -1,18 +1,16 @@
 import { EvaluatePersonInteractor } from "./evaluate-personal.interactor";
 import { EmploymentSystem } from "../../../domain/model/employee/employment-system";
-import { EmployeeRepository } from "../../../domain/model/employee/employee.repository";
-import { EmployeeFactory } from "../../../domain/model/employee/employee.factory";
-import { ManhourRepository } from "../../../domain/model/manhour/manhour.repository";
+import { HumanResourceEmployeeRepository } from "../../../domain/model/employee/human-resource-employee.repository";
+import { HumanResourceEmployeeFactory } from "../../../domain/model/employee/human-resource-employee.factory";
 
 describe("EvaluatePersonalInteractor", () => {
   let interactor: EvaluatePersonInteractor;
-  const employeeRepository = new EmployeeRepository();
-  const manhourRepository = new ManhourRepository();
+  const employeeRepository = new HumanResourceEmployeeRepository();
   const fulltimeEmployeeNumber = "00000001";
   const grade = 10;
   beforeEach(async () => {
     interactor = new EvaluatePersonInteractor(employeeRepository);
-    const employeeFactory = new EmployeeFactory(manhourRepository);
+    const employeeFactory = new HumanResourceEmployeeFactory();
     const employee = employeeFactory.create(
       fulltimeEmployeeNumber,
       "徳川家康",

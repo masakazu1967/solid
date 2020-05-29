@@ -296,3 +296,48 @@ export class TaxPrice {
 ```
  PASS  src/domain/model/price/tax-price.spec.ts
 ```
+
+## インターフェイス分離の原則 (ISP)
+
+顧客に特化した細粒度のインタフェースを作れ
+顧客は自分たちが使わないインターフェースに依存することを強いられるべきではない
+
+パート社員は人事考課の対象外であるというような場合、従業員クラスには人事考課のメソッドがあり、パート社員も従業員クラスから派生しているため、人事考課のメソッドを継承している。
+経理サービスでは使用しない人事考課のインターフェイスに依存したくないため、分離する。
+
+変更前
+
+```plantuml
+abstract class 抽象Employee
+class 正社員
+class 契約社員
+class パート社員
+
+抽象Employee <|- 正社員
+抽象Employee <|- 契約社員
+抽象Employee <|- パート社員
+```
+
+変更後
+
+```plantuml
+interface 人事Employee
+interface 経理Employee
+abstract class 抽象Employee
+abstract class 抽象人事Employee
+abstract class 抽象経理Employee
+class 正社員
+class 契約社員
+class パート社員
+
+抽象Employee <|- 抽象人事Employee
+抽象Employee <|- 抽象経理Employee
+人事Employee <|- 抽象人事Employee
+経理Employee <|- 抽象経理Employee
+抽象人事Employee <|- 正社員
+経理Employee <|- 正社員
+抽象人事Employee <|- 契約社員
+経理Employee <|- 契約社員
+抽象Employee <|- パート社員
+経理Employee <|- パート社員
+```

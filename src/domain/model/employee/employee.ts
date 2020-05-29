@@ -49,20 +49,4 @@ export abstract class Employee {
   protected genId(): void {
     this._id = uuid();
   }
-
-  /**
-   * 給与を計算する
-   * @return 給与金額
-   */
-  abstract calcSalary(): Promise<number>;
-
-  /**
-   * 人事考課を行う
-   * @param fluctuation 等級の増減
-   */
-  evaluatePersonal(fluctuation: number): void {
-    if (this._grade) {
-      this._grade = this._grade + fluctuation;
-    }
-  }
 }
