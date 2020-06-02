@@ -1,9 +1,10 @@
 import { HumanResourceEmployeeRepository } from "../../../domain/model/employee/human-resource-employee.repository";
+import { EvaluatePersonalUsecase } from "./evaluate-personal.usecase";
 
 /**
  * 人事考課ユースケース
  */
-export class EvaluatePersonInteractor {
+export class EvaluatePersonInteractor implements EvaluatePersonalUsecase {
   constructor(private _employeeRepository: HumanResourceEmployeeRepository) {}
   /**
    * 特定の従業員の人事考課を行う

@@ -1,16 +1,17 @@
+import "reflect-metadata";
 import { CalcSalaryInteractor } from "./calc-salary.interactor";
 import { EmploymentSystem } from "../../../domain/model/employee/employment-system";
-import { SalaryRepository } from "../../../domain/model/salary/salary.repository";
-import { ManhourRepository } from "../../../domain/model/manhour/manhour.repository";
 import { Manhour } from "../../../domain/model/manhour/manhour";
-import { AccountingEmployeeRepository } from "../../../domain/model/employee/accounting-employee.repository";
 import { AccountingEmployeeFactory } from "../../../domain/model/employee/accounting-employee.factory";
+import { InMemoryAccountingEmployeeRepository } from "../../../interface/datasource/memory/inmemory-accounting-employee.repository";
+import { InMemoryManhourRepository } from "../../../interface/datasource/memory/inmemory-manhour.repository";
+import { InMemorySalaryRepository } from "../../../interface/datasource/memory/inmemory-salary.repository";
 
 describe("CalcSalaryInteractor", () => {
   let interactor: CalcSalaryInteractor;
-  const employeeRepository = new AccountingEmployeeRepository();
-  const salaryRepository = new SalaryRepository();
-  const manhourRepository = new ManhourRepository();
+  const employeeRepository = new InMemoryAccountingEmployeeRepository();
+  const salaryRepository = new InMemorySalaryRepository();
+  const manhourRepository = new InMemoryManhourRepository();
   const fulltimeEmployeeNumber = "00000001";
   const contractEmployeeNumber = "00000002";
   const parttimeEmployeeNumber = "00000003";

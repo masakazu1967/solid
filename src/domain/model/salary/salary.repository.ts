@@ -3,29 +3,16 @@ import { Salary } from "./salary";
 /**
  * 給与リポジトリ
  */
-export class SalaryRepository {
-  private _salaries: { [key: string]: Salary } = {};
-
+export interface SalaryRepository {
   /**
    * 指定した従業員IDの給与を取得する
    * @param employeeId 取得する給与の従業員ID
    */
-  findByEmployeeId(employeeId: string): Promise<Salary> {
-    const salary = this._salaries[employeeId];
-    if (!salary) {
-      return Promise.reject(
-        new Error(`従業員IDが${employeeId}の給与金額が見つかりません`)
-      );
-    }
-    return Promise.resolve(salary);
-  }
+  findByEmployeeId(employeeId: string): Promise<Salary>;
 
   /**
    * 指定した給与を保存する
    * @param salary 保存する給与
    */
-  save(salary: Salary): Promise<void> {
-    this._salaries[salary.employeeId] = salary;
-    return Promise.resolve();
-  }
+  save(salary: Salary): Promise<void>;
 }

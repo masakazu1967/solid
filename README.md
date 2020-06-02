@@ -341,3 +341,196 @@ class パート社員
 抽象Employee <|- パート社員
 経理Employee <|- パート社員
 ```
+
+## 依存性逆転の原則 (DIP)
+
+AモジュールがBモジュールを読み込む場合はAはBに依存しているという。
+設計上望ましい依存の方向性と実装での方向性は矛盾するので、逆転させるということ。
+モジュールBを変更させるとモジュールAにも影響が生じる。なので、モジュールBだけではなくAの影響範囲も調査が必要になる。
+依存しているということは、依存対象の知識を持っているということ。
+LSPではAモジュールはBモジュールがどういう実装をしているかという知識を持つべきではないと言っている。
+いわゆる疎結合ということ。
+ということで、抽象化されたものに依存するべきであり、詳細に依存してはいけない。
+リポジトリパターンがあったとして、LSPではそのリポジトリのインターフェイスの知識を持っていることは許されるが、実装についての知識を持つことは許されない。
+ただモジュール読み込みしたいのはインターフェイスではなく、実際の実装したクラスであるはず。インターフェイスをそのままインスタンス化はできない。
+
+SOLID原則を適用したクリーンアーキテクチャでは内側に向かってのみ依存することができる。つまり内側の円が外側の円に依存してはならないというもの。
+ユースケースがインフラストラクチャについての知識を持ってはならない。
+
+![The Clean Architecture](https://blog.cleancoder.com/uncle-bob/images/2012-08-13-the-clean-architecture/CleanArchitecture.jpg)
+
+しかし、今の例ではドメインにリポジトリの実装があり、インメモリでの実装というインフラストラクチャの知識を有している。
+
+domain/model/employee
+
+```typescript
+class AccountingEmployeeRepository {
+  private _employees: { [key: string]: AbstractAccountingEmployee } = {};
+  ...
+}
+```
+
+application/service/calc-salary
+
+```typescript
+class CalcSalaryInteractor {
+  private _accountingEmployeRepository = new AccountingEmployeeRepository();
+  private _salaryRepository: SalaryRepository = new SalaryRepository();
+  async execute(employeeNumber: string): Promise<void> {
+    const employee = await this._accountingEmployeeRepository.findByEmployeeNumber(
+      employeeNumber
+    );
+    ...
+  }
+}
+```
+
+リポジトリをインターフェイスにして実装をインターフェイスのレイヤーに移動させる
+
+domain/model/employee
+
+```typescript
+interface AccountingEmployeeRepository {
+  findByEmployeeNumber(
+    employeeNumber: string
+  ): Promise<AbstractAccountingEmployee>;
+}
+```
+
+interface/datasource/memory
+
+```typescript
+class InMemoryAccountingEmployeeRepository implements AccountingEmployeeRepository {
+  private _employees: { [key: string]: AbstractAccountingEmployee } = {};
+  findByEmployeeNumber(
+    employeeNumber: string
+  ): Promise<AbstractAccountingEmployee> {
+    ...
+  }
+}
+```
+
+application/service/calc-salary
+
+```typescript
+class CalcSalaryInteractor {
+  private _accountingEmployeRepository = new InMemoryAccountingEmployeeRepository();
+  private _salaryRepository: SalaryRepository = new InMemorySalaryRepository();
+  async execute(employeeNumber: string): Promise<void> {
+    const employee = await this._accountingEmployeeRepository.findByEmployeeNumber(
+      employeeNumber
+    );
+    ...
+  }
+}
+```
+
+しかしまだ、ユースケースがインメモリでの実装というインフラストラクチャの知識を有している。
+
+詳細に依存せずにアクセスする方法としては以下の2つの方法が考えられる。
+
+- 依存性の注入 (Dependency Injection)
+- ファクトリーメソッドパターン
+
+### 依存性の注入による実装方法
+
+CalcSalaryInteractorが依存しているInMemoryAccountingEmployeeRepositoryを外から注入してやれば依存しなくなる。
+
+```typescript
+class CalcSalaryInteractor {
+  constructor(
+    private _accountingEmployeRepository: AccountingEmployeeRepository,
+    private _salaryRepository: SalaryRepository
+  ) {
+
+  }
+}
+```
+
+これでCalcSalaryInteractorはGatewayであるInMemoryAccountingEmployeeRepositoryではなくEntitiesであるAccountingEmployeeRepositoryに依存するのでOK。
+
+ではインスタンス化したInMemoryAccountingEmployeeRepositoryをどのようにしてCalcSalaryInteractorに渡すのか。
+DI(inversify)では起動時にDIコンテナを構成し、DIコンテナから必要なオブジェクトを取り出す。
+
+interface/datasource/memory
+
+```typescript
+@injectable()
+class InMemoryAccountingEmployeeRepository implements AccountingEmployeeRepository {
+  private _employees: { [key: string]: AbstractAccountingEmployee } = {};
+  findByEmployeeNumber(
+    employeeNumber: string
+  ): Promise<AbstractAccountingEmployee> {
+    ...
+  }
+}
+```
+
+application/service/calc-salary
+
+```typescript
+@injectable()
+class CalcSalaryInteractor {
+  constructor(
+    @inject(TYPES.AccountingEmployeeRepository) private _accountingEmployeRepository: AccountingEmployeeRepository,
+    @inject(TYPES.SalaryRepository) private _salaryRepository: SalaryRepository
+  ) {
+
+  }
+}
+```
+
+types.ts
+
+```typescript
+const TYPES = {
+  AccountingEmployeeRepository: Symbol.for("AccountingEmployeeRepository"),
+  SalaryRepository: Symbol.for("SalaryRepository"),
+  CalcSalaryUsecase: Symbol.for("CalcSalaryUsecase")
+};
+```
+
+inversify.config.ts
+
+```typescript
+const container = new Container();
+container.bind<AccountingEmployeeRepository>(TYPES.AccountingEmployeeRepository).to(InMemoryAccountingEmployeeRepository);
+container.bind<SalaryRepository>(TYPES.SalaryRepository).to(InMemorySalaryRepository);
+container.bind<CalcSalaryUsecase>(TYPES.CalcSalaryUsecase).to(CalcSalaryInteractor);
+```
+
+クライアント
+
+```typescript
+const calcSalaryUsecase = container.get<CalcSalaryUsecase>(TYPES.CalcSalaryUsecase);
+await calcSalaryUsecase.execute(employeeNumber);
+```
+
+CalcSalaryUsecaseの実装をインスタンス化するときにAccountingEmployeeRepositoryとSalaryRepositoryの実装が必要なので、これらもDIコンテナがインスタンス化してCalcSalaryUsecaseの実装に注入する。
+
+これで内側から外側への依存はなくなった。
+
+インメモリからデータベースへ変更するときはデータベース用のリポジトリを作成し、inversify.config.tsのインターフェイスへバインドするクラスをデータベース用のリポジトリに変更するだけ。
+
+```typescript
+@injectable()
+class DatabaseAccountingEmployeeRepository implements AccountingEmployeeRepository {
+  constructor(@inject(TYPES.DatabaseConnection)private _connection: DatabaseConnection) {
+  }
+
+  findByEmployeeNumber(
+    employeeNumber: string
+  ): Promise<AbstractAccountingEmployee> {
+    ...
+  }
+}
+```
+
+```typescript
+const container = new Container();
+container.bind<AccountingEmployeeRepository>(TYPES.AccountingEmployeeRepository).to(DatabaseAccountingEmployeeRepository);
+container.bind<SalaryRepository>(TYPES.SalaryRepository).to(DatabaseSalaryRepository);
+container.bind<CalcSalaryUsecase>(TYPES.CalcSalaryUsecase).to(CalcSalaryInteractor);
+```
+
+これでユースケースやドメインには一切手を加えることなくインメモリからデータベースへ変更することができる。

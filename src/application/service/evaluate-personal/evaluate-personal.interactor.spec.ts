@@ -1,11 +1,12 @@
+import "reflect-metadata";
 import { EvaluatePersonInteractor } from "./evaluate-personal.interactor";
 import { EmploymentSystem } from "../../../domain/model/employee/employment-system";
-import { HumanResourceEmployeeRepository } from "../../../domain/model/employee/human-resource-employee.repository";
 import { HumanResourceEmployeeFactory } from "../../../domain/model/employee/human-resource-employee.factory";
+import { InMemoryHumanResourceEmployeeRepository } from "../../../interface/datasource/memory/inmemory-human-resource-employee.repository";
 
 describe("EvaluatePersonalInteractor", () => {
   let interactor: EvaluatePersonInteractor;
-  const employeeRepository = new HumanResourceEmployeeRepository();
+  const employeeRepository = new InMemoryHumanResourceEmployeeRepository();
   const fulltimeEmployeeNumber = "00000001";
   const grade = 10;
   beforeEach(async () => {

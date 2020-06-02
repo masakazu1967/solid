@@ -4,12 +4,18 @@ import { ContractEmployee } from "./contract-employee";
 import { ManhourRepository } from "../manhour/manhour.repository";
 import { ParttimeEmployee } from "./parttime-employee";
 import { AbstractAccountingEmployee } from "./abstract-accounting-employee";
+import { injectable, inject } from "inversify";
+import { TYPES } from "../../../types";
 
 /**
  * 社員ファクトリ
  */
+@injectable()
 export class AccountingEmployeeFactory {
-  constructor(private _manhourRepository: ManhourRepository) {}
+  constructor(
+    @inject(TYPES.ManhourRepository)
+    private _manhourRepository: ManhourRepository
+  ) {}
 
   /**
    * 雇用形態に応じた社員を生成する。
